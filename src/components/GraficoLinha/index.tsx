@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { LineChart, XAxis, Line } from "recharts";
+import { LineChart, XAxis, Line, CartesianGrid } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -12,21 +12,9 @@ import type { User } from "../../types/User";
 import { useSelector } from "react-redux";
 import type { Venda } from "../../types/Venda";
 import type { MonthChartData, VendaComIdCliente } from "../../types/Charts";
+import { createChartConfig } from "../../lib/utils";
+import { ChartPlaceholder } from "../ChartPlaceholder";
 
-
-const createChartConfig = (clients: User[]): ChartConfig => {
-  const config: ChartConfig = {};
-
-  clients.forEach((client, index) => {
-    const colorIndex = (index % 5) + 1; // Cycle through 5 chart colors
-    config[client.id] = {
-      label: client.nome || `Client ${client.id}`,
-      color: `hsl(var(--chart-${colorIndex}))`,
-    };
-  });
-
-  return config;
-};
 
 const processarVendasClientes = (clientes: User[]): VendaComIdCliente[] => {
   return clientes
@@ -89,7 +77,7 @@ export function GraficoLinha() {
 
   if (loadingClients || chartData.length === 0 || !chartConfig) {
     return (
-      <div className="w-full h-full animate-pulse bg-gray-200 rounded-lg" />
+      <ChartPlaceholder />
     );
   }
 
@@ -105,12 +93,13 @@ export function GraficoLinha() {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) => value.slice(0, 3)}
+          tickFormatter={(value) => value.slice(0, 5)}
         />
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent className="bg-black text-white" hideLabel />}
         />
+        <CartesianGrid vertical={false} strokeWidth={0.2} />
         {Object.keys(chartConfig).map((key, idx) => {
           const colorIndex = (idx % 5) + 1;
           return (

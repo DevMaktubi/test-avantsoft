@@ -1,5 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { formatarClientesParaReducer } from "../../lib/funcoes-especificas";
+import type { CreateUserDTO, User } from "../../types/User";
+import moment from "moment";
+import { toast } from "sonner";
 
 export const getClientData = createAsyncThunk(
   "client/getClientData",
@@ -105,5 +108,32 @@ export const getClientData = createAsyncThunk(
     });
 
     return formatarClientesParaReducer(response.data.clientes);
+  }
+);
+
+export const addClient = createAsyncThunk(
+  "client/addClient",
+  async (client: CreateUserDTO): Promise<User> => {
+    // Simulação de chamada a um serviço externo
+    const response: User = await new Promise((resolve) => {
+      setTimeout(() => {
+        const novoCliente: User = {
+          nome: client.name,
+          email: client.email,
+          data_nascimento: moment(client.data_nascimento).format("YYYY-MM-DD"),
+          vendas: [],
+          id: client.name.toLowerCase().split(" ")[0],
+          letraFaltante: "",
+          total: 0,
+          media: 0,
+          frequencia: 0,
+        }
+        resolve(novoCliente);
+      }, 1000);
+    });
+
+    toast.success("Cliente adicionado com sucesso!")
+
+    return response;
   }
 );

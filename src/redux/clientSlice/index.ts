@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { getClientData } from "./asyncThunks";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { addClient, getClientData } from "./asyncThunks";
 import type { User } from "../../types/User";
 
 
@@ -28,6 +28,16 @@ export const clientSlice = createSlice({
         state.loadingClients = false;
       })
       .addCase(getClientData.rejected, (state) => {
+        state.loadingClients = false;
+      })
+      .addCase(addClient.pending, (state) => {
+        state.loadingClients = true;
+      })
+      .addCase(addClient.fulfilled, (state, action: PayloadAction<User>) => {
+        state.clients = [...state.clients, action.payload];
+        state.loadingClients = false;
+      })
+      .addCase(addClient.rejected, (state) => {
         state.loadingClients = false;
       });
   },

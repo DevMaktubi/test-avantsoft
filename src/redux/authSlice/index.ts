@@ -1,4 +1,4 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { authenticateUser, logoutUser } from "./asyncThunks";
 import type { AuthenticatedUser } from "../../types/User";

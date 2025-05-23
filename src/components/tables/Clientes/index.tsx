@@ -1,78 +1,144 @@
-import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../ui/table";
-
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-];
+import { useSelector } from "react-redux";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../ui/table";
+import {
+  selectClients,
+  selectLoadingClients,
+} from "../../../redux/clientSlice";
+import type { User } from "../../../types/User";
+import type { Venda } from "../../../types/Venda";
+import moment from "moment";
+import { calcularLetraFaltante, maskBRL } from "../../../lib/utils";
+import { Skeleton } from "../../ui/skeleton";
 
 export function TableClientes() {
+  const loadingClients = useSelector(selectLoadingClients);
+  const clients = useSelector(selectClients);
+
+  const clientes = clients.map((client: User) => {
+    const totalVendas = client.vendas.reduce((acc, venda: Venda) => {
+      return acc + venda.valor;
+    }, 0);
+
+    // Agrupar vendas por data e calcular media de vendas por dia
+    const vendasPorData = client.vendas.reduce((acc: any, venda: Venda) => {
+      const data = moment(venda.data).format("DD/MM/YYYY");
+      acc[data] = (acc[data] || 0) + 1;
+      return acc;
+    }, {});
+
+    const mediaVendasPorDia =
+      Object.values(vendasPorData).reduce((acc: number, count: any) => {
+        return acc + (count as number);
+      }, 0) / Object.keys(vendasPorData).length;
+
+    const mediaValorVenda = totalVendas / client.vendas.length;
+
+    return {
+      id: client.id,
+      nome: client.nome,
+      email: client.email,
+      data_nascimento: client.data_nascimento,
+      vendas: client.vendas,
+      totalVendas: totalVendas || 0,
+      mediaValorVenda: mediaValorVenda || 0,
+      mediaVendasPorDia: mediaVendasPorDia || 0,
+    };
+  });
+
   return (
-    <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Invoice</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+    <div className="w-full h-full overflow-x-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-[var(--primary)] text-xl">
+              Cliente
+            </TableHead>
+            <TableHead className="text-[var(--primary)] text-xl">
+              Email
+            </TableHead>
+            <TableHead className="text-[var(--primary)] text-xl text-center">
+              Data de nascimento
+            </TableHead>
+            <TableHead className="text-[var(--primary)] text-xl text-center">
+              PLF
+            </TableHead>
+            <TableHead className="text-[var(--primary)] text-xl text-center">
+              Frequência
+            </TableHead>
+            <TableHead className="text-[var(--primary)] text-xl text-center">
+              Média
+            </TableHead>
+            <TableHead className="text-[var(--primary)] text-xl text-center">
+              Total
+            </TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {!loadingClients &&
+            clientes.map((cliente) => (
+              <TableRow key={cliente.id}>
+                <TableCell className="text-[var(--primary)] text-lg max-w-[250px]">
+                  <div className="truncate whitespace-normal break-words">
+                    {cliente.nome || "-"}
+                  </div>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  {cliente.email || "-"}
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg text-center">
+                  {moment(cliente.data_nascimento).format("DD/MM/YYYY") || "-"}
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg text-center">
+                  <div className="bg-[var(--primary)] w-8 h-8 mx-auto rounded flex items-center justify-center text-black">
+                    {calcularLetraFaltante(cliente.nome)}
+                  </div>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg text-center">
+                  {cliente.mediaVendasPorDia} VPD
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg text-center">
+                  R$ {maskBRL(cliente.mediaValorVenda)}
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg text-center">
+                  R$ {maskBRL(cliente.totalVendas)}
+                </TableCell>
+              </TableRow>
+            ))}
+          {loadingClients &&
+            Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  <Skeleton className="animate-pulse bg-gray-700 h-6 w-full rounded-md"></Skeleton>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  <Skeleton className="animate-pulse bg-gray-700 h-6 w-full rounded-md"></Skeleton>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  <Skeleton className="animate-pulse bg-gray-700 h-6 w-full rounded-md"></Skeleton>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  <Skeleton className="animate-pulse bg-gray-700 h-6 w-full rounded-md"></Skeleton>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  <Skeleton className="animate-pulse bg-gray-700 h-6 w-full rounded-md"></Skeleton>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  <Skeleton className="animate-pulse bg-gray-700 h-6 w-full rounded-md"></Skeleton>
+                </TableCell>
+                <TableCell className="text-[var(--primary)] text-lg">
+                  <Skeleton className="animate-pulse bg-gray-700 h-6 w-full rounded-md"></Skeleton>
+                </TableCell>
+              </TableRow>
+            ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

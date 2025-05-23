@@ -7,4 +7,5 @@ export type MonthChartData = {
 
 export interface VendaComIdCliente extends Venda {
   idCliente: string;
+  nomeCliente?: string;
 }

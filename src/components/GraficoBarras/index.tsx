@@ -1,4 +1,4 @@
-import { BarChart, XAxis, Bar } from "recharts";
+import { BarChart, XAxis, Bar, CartesianGrid } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -12,20 +12,8 @@ import type { MonthChartData, VendaComIdCliente } from "../../types/Charts";
 import type { User } from "../../types/User";
 import type { Venda } from "../../types/Venda";
 import moment from "moment";
-
-const createChartConfig = (clients: User[]): ChartConfig => {
-  const config: ChartConfig = {};
-
-  clients.forEach((client, index) => {
-    const colorIndex = (index % 5) + 1; // Cycle through 5 chart colors
-    config[client.id] = {
-      label: client.nome || `Client ${client.id}`,
-      color: `var(--chart-${colorIndex})`,
-    };
-  });
-
-  return config;
-};
+import { createChartConfig } from "../../lib/utils";
+import { ChartPlaceholder } from "../ChartPlaceholder";
 
 const processarVendasClientes = (clientes: User[]): VendaComIdCliente[] => {
   return clientes
@@ -88,12 +76,10 @@ export function GraficoBarras() {
 
   if (loadingClients || chartData.length === 0 || !chartConfig) {
     return (
-      <div className="w-full h-full animate-pulse bg-gray-200 rounded-lg" />
+      <ChartPlaceholder />
     );
   }
 
-  console.log("chartData", chartData);
-  console.log("chartConfig", chartConfig);
   return (
     <ChartContainer config={chartConfig} className="w-full h-full">
       <BarChart accessibilityLayer data={chartData}>
@@ -103,12 +89,12 @@ export function GraficoBarras() {
           tickMargin={10}
           axisLine={false}
           tickFormatter={(value) => value.slice(0, 5)}
-          tick={{ fontSize: 12, fill: "var(--text-2)" }}
         />
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent className="bg-black text-white" hideLabel />}
         />
+        <CartesianGrid vertical={false} strokeWidth={0.2} />
         {Object.entries(chartConfig).map(([key, value]) => {
           return (
             <Bar

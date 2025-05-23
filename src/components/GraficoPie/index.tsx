@@ -9,20 +9,8 @@ import { useEffect, useMemo, useState } from "react";
 import { selectClients, selectLoadingClients } from "../../redux/clientSlice";
 import { useSelector } from "react-redux";
 import type { User } from "../../types/User";
-
-const createChartConfig = (clients: User[]): ChartConfig => {
-  const config: ChartConfig = {};
-
-  clients.forEach((client, index) => {
-    const colorIndex = (index % 5) + 1; // Cycle through 5 chart colors
-    config[client.id] = {
-      label: client.nome || `Client ${client.id}`,
-      color: `var(--chart-${colorIndex})`,
-    };
-  });
-
-  return config;
-};
+import { createChartConfig } from "../../lib/utils";
+import { ChartPlaceholder } from "../ChartPlaceholder";
 const processarFaturamentoTotalPorCliente = (
   clientes: User[]
 ): Array<{ [key: string]: number | string }> => {
@@ -75,6 +63,12 @@ export function GraficoPie() {
       setChartConfig(config);
     }
   }, [memoizedClients, loadingClients]);
+
+  if (loadingClients || chartData.length === 0 || !chartConfig) {
+    return (
+      <ChartPlaceholder />
+    );
+  }
   return (
     <>
       <ChartContainer
@@ -109,14 +103,14 @@ export function GraficoPie() {
                       <tspan
                         x={viewBox.cx}
                         y={viewBox.cy}
-                        className="fill-foreground text-3xl font-bold"
+                        className="fill-white text-3xl font-bold"
                       >
                         {totalVendas}
                       </tspan>
                       <tspan
                         x={viewBox.cx}
                         y={(viewBox.cy || 0) + 24}
-                        className="fill-muted-foreground"
+                        className="fill-white "
                       >
                         Vendas
                       </tspan>
@@ -129,9 +123,9 @@ export function GraficoPie() {
         </PieChart>
       </ChartContainer>
       <div className="flex flex-wrap gap-4 justify-center">
-        {chartData.map((item) => (
+        {chartData.map((item,idx) => (
           <div
-            key={item.browser}
+            key={idx}
             className="flex items-center gap-2 text-white"
           >
             <div

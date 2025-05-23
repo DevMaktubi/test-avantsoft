@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { AuthenticatedUser } from "../../types/User";
+import { toast } from "sonner";
 
 export const authenticateUser = createAsyncThunk(
   'auth/authenticateUser',
@@ -15,6 +16,8 @@ export const authenticateUser = createAsyncThunk(
       }, 3000);
     });
 
+    toast('Login realizado com sucesso!');
+
     return response as AuthenticatedUser;
   }
 )
@@ -28,6 +31,8 @@ export const logoutUser = createAsyncThunk(
         resolve(true);
       }, 3000);
     });
+
+    toast('Logout realizado com sucesso!');
 
     return response as boolean;
   }

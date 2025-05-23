@@ -6,6 +6,12 @@ export type AuthenticatedUser = {
   name:string;
 }
 
+export type CreateUserDTO = {
+  email: string;
+  name: string;
+  data_nascimento: Date;
+}
+
 export type User = {
   id: string;
   email: string;

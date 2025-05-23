@@ -1,14 +1,18 @@
-import { useState } from 'react'
-import {Provider} from 'react-redux'
-import { RouterComponent } from './RouterComponent'
-import { store } from './config/store'
+import { Provider } from "react-redux";
+import { RouterComponent } from "./RouterComponent";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "./config/store";
+import { Toaster } from "sonner";
 
 function App() {
   return (
     <Provider store={store}>
-      <RouterComponent />
+      <PersistGate loading={null} persistor={persistor}>
+        <RouterComponent />
+        <Toaster />
+      </PersistGate>
     </Provider>
-  )
+  );
 }
 
-export default App
+export default App;
