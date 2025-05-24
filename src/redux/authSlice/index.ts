@@ -57,3 +57,6 @@ export default authSlice.reducer;
 
 export const selectorLoadingAuthentication = (state: RootState) => 
   state.auth.loadingAuthentication;
+
+export const selectorAuthenticated = (state: RootState) =>
+  state.auth.isAuthenticated; 

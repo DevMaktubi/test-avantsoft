@@ -4,10 +4,10 @@ import { Login } from "../pages/Login";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { dashboardPath, loginPath } from "../constant/path";
 import { useEffect } from "react";
-import type { RootState } from "./store";
+import { selectorAuthenticated } from "../redux/authSlice";
 
 function RootLayout() {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = useSelector(selectorAuthenticated);
   const navigate = useNavigate();
   const location = useLocation();
 
