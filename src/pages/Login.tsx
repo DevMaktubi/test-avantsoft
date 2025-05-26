@@ -38,7 +38,7 @@ export function Login() {
     },
   });
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-[url(src/assets/login-bg.png)] bg-cover bg-no-repeat bg-center">
+    <div className="w-screen h-screen flex items-center justify-center bg-[url(/login-bg.png)] bg-cover bg-no-repeat bg-center">
       <Card className="bg-[rgba(0,0,0,.65)] border-none flex flex-col items-center justify-center shadow-lg gap-4 px-8 w-xs rounded-lg py-6">
         <h1 className="text-white m-0 text-3xl opacity-100 font-bold">Login</h1>
         <Form {...formh}>
